@@ -1,0 +1,366 @@
+\documentclass[10pt,a4paper]{article}
+
+\input{ejemplo_tp/AEDmacros}
+\usepackage{ejemplo_tp/caratula} % Version modificada para usar las macros de algo1 de ~> https://github.com/bcardiff/dc-tex
+\usepackage{amssymb}
+
+\titulo{Especificaci\'on y WP}
+
+\fecha{15 de Septiembre de 2024}
+
+\materia{Algoritmos y Estructuras de Datos / ex Algo 2}
+\grupo{Grupo uwuntu}
+
+\integrante{Mendez Ayala, Lautaro Evaristo}{799/23}{lemayala@dc.uba.ar}
+\integrante{Garces, Facundo}{1044/23}{pacusgarces@gmail.com}
+\integrante{Monges Luces, Rafael Martin}{888/23}{rafaml2003@gmail.com}
+\integrante{Gallardo, Ignacio Joaquin}{409/23}{nachoqmt@gmail.com}
+% Pongan cuantos integrantes quieran
+
+% Declaramos donde van a estar las figuras
+% No es obligatorio, pero suele ser comodo
+\graphicspath{{imagenes}}
+
+\begin{document}
+
+\maketitle
+
+\section{Especificaci\'on}
+\subsection{grandesCiudades}
+
+% ejercicio 1.1
+
+
+\begin{proc}{grandesCiudades}{\In ciudades : \TLista{Ciudad}}{\TLista{Ciudad}}
+	%Agregue el requiere de ser habitantes
+	\requiere{habitantesPositivos(ciudades) \yLuego noHayRepetidos(ciudades)}
+	\asegura{ciudades = [\ ] \implicaLuego res = [\ ]}
+	\asegura{\\
+	\paraTodo[unalinea]{ciudad}{Ciudad}{ciudad_{habitantes} > 50000 \wedge pertenece(ciudad, ciudades)} \Sisolosi pertenece(ciudad, res) \\
+	}
+	\asegura{noHayRepetidos(res)}
+\end{proc}
+
+\subsection{sumaDeHabitantes}
+
+% ejercicio 1.2
+
+\begin{proc}{sumaDeHabitantes}
+	{\In menoresDeCiudades : \TLista{Ciudad},
+	\In mayoresDeCiudades : \TLista{Ciudad}}{\TLista{Ciudad}}
+	%Agregue el requiere de ser habitantes positivos
+	\requiere{\\
+		habitantesPositivos(menoresDeCiudades) \yLuego noHayRepetidos(menoresDeCiudades) \yLuego \\
+		habitantesPositivos(mayoresDeCiudades) \yLuego noHayRepetidos(mayoresDeCiudades) \yLuego \\
+		|menoresDeCiudades| = |mayoresDeCiudades| \yLuego \\
+		mismasCiudades(menoresDeCiudades, mayoresDeCiudades)\\
+		%La verdad no entiendo que es lo que dice aca que esta mal
+	}
+	\asegura{menoresDeCiudades = [\ ] \implicaLuego res = [\ ]}
+	\asegura{\\
+		\paraTodo[unalinea]{i,j}{\ent}{0 \leq i,j <|menoresDeCiudades| \implicaLuego  \\
+		(menoresDeCiudades[i]_{nombre} = mayoresDeCiudades[j]_{nombre})\implicaLuego \\
+		\langle menoresDeCiudades[i]_{nombre}, menoresDeCiudades[i]_{habitantes} + mayoresDeCiudades[j]_{habitantes} \rangle \in res} \\
+	}
+	\asegura{mismasCiudades(res, menoresDeCiudades)}
+	\asegura{noHayRepetidos(res)}
+
+	\pred{mismasCiudades}{ciudad1 : \TLista{Ciudad}, ciudad2 : \TLista{Ciudad}}{\paraTodo[unalinea]{i}{\ent}{0 \leq i < |ciudad1| \implicaLuego 
+		\existe[unalinea]{j}{\ent}{0 \leq j < |ciudad1| \yLuego (ciudad1[i]_{nombre} = ciudad2[j]_{nombre})}}}
+		
+\end{proc}
+
+
+
+\subsection{hayCamino}
+
+% ejercicio 1.3
+
+\begin{proc}{hayCamino}{\In distancias : \TLista{\TLista{\ent}}, \In desde : \ent, \In hasta : \ent}{\bool}
+	\requiere{\\
+		matrizValida(distancias)\yLuego \\
+		existeEnMatriz(distancias, desde)\yLuego \\
+		existeEnMatriz(distancias,hasta)\yLuego\\
+		noElemNeg(distancias)\\
+	}
+	\asegura{\\
+		res = \True \Sisolosi \existe[unalinea]{camino}{\TLista{\ent}}{|camino| > 0 \yLuego \\ noHayMasElementos(camino,distancias) \yLuego \\
+			noHayElemPorFuera(camino, distancias)} \yLuego \\
+		(estan2a2(camino, distancias) \wedge (camino[0] = desde \land camino[|camino|-1] = hasta))\\
+	}
+\end{proc}
+
+\subsection{cantidadCaminosNSaltos}
+
+% ejercicio 1.4
+
+\begin{proc}{cantidadCaminosNSaltos}{\Inout conexion : \matriz{\ent}, \In n : \ent}{}
+	\requiere{conexion = C_0}
+    \requiere{matrizValida(conexion)}
+    \requiere{esMatrizOrden1(conexion)}
+    \requiere{n \geq 1}
+	\asegura{n = 1 \implica conexion = C_0}
+	\asegura{|conexion| = |C_0| \yLuego \paraTodo[unalinea]{i}{\ent}{0 \leq i < |C_0| \implicaLuego |conexion[i]| = |C_0[i]|}}
+    \asegura{\\
+		\existe[unalinea]{s}{\TLista{\TLista{\TLista{\ent}}}}{|s| = n \wedge s[0] = C_0 \yLuego \\
+		\paraTodo[unalinea]{i}{\ent}{ 1 \leq i < |s| \implicaLuego (esMatrizCuadrada(s[i]) \yLuego |s[i-1]| = |s[i]| \yLuego \\
+		esProducto(s[i], s[i - 1], C_0) \yLuego conexion = s[|s|-1])
+		}} \\
+    }
+
+	\pred{esMatrizOrden1}{conexion : \matriz{\ent}}{
+		matrizValida(conexion) \yLuego \\(\forall i:\ent)(\forall j:\ent)(0\leq i < |conexion| \wedge 0 \leq j < |conexion| \implicaLuego (conexion[i][j] = 0 \vee conexion[i][j] =1))}
+
+	%Definicion de esProducto, no se si funcionara
+	\pred{esProducto}{m: \TLista{\TLista{\ent}}, n: \TLista{\TLista{\ent}}, o: \TLista{\TLista{\ent}}}{
+		\paraTodo[unalinea]{i,j}{\ent}{0 \leq i,j < |o| \implicaLuego  m [i][j] = \sum_{r=1}^{|o|} o[i][r] * n[r][i]}}
+
+\end{proc}
+
+\subsection{caminoM\'inimo}
+
+% ejercicio 1.5
+
+\begin{proc}{caminoM\'inimo}{\In origen:\ent, \In destino:\ent, \In distancias: \matriz{\ent}}{\TLista{\ent}}
+	\requiere{\\
+		matrizValida(distancias) \yLuego \\
+		existeEnMatriz(distancias, origen)\yLuego \\
+		existeEnMatriz(distancias, destino)\\
+		\yLuego noElemNeg(distancias)\\
+	}
+	\asegura{\\
+		(res = \varnothing \wedge noHayCamino(origen, destino, distancias)) \vee \\
+		(\forall camino: \TLista{\ent})(|camino| > 0 \Then \\
+		(esCamino(camino, origen, destino, distancias) \wedge 
+		esCamino(res, origen, destino, distancias) \wedge \\
+		(distTotal(res, distancias) \leq distTotal(camino, distancias))))\\
+	}
+	\pred{noHayCamino}{origen: \ent, destino: \ent, distancias: \TLista{\TLista{\ent}}}{
+		(\forall camino: \TLista{\ent})(\neg esCamino(camino, origen, destino, distancias))}
+	
+	%todavia queda hacer este aux..uwu
+	%Aca esta lo unico que se me ocurrio
+	\aux{distTotal}{camino : \TLista{\ent}, distancias : \matriz{\ent}}{\ent}{\sum_{i=0}^{|camino|-2} distancias[camino[i]][camino[i+1]]}
+	
+\end{proc}
+
+\subsection{Predicados y Auxiliares usados en multiples ejercicios}
+
+\pred{habitantesPositivos}{ciudades : \TLista{Ciudad}}{\paraTodo[unalinea]{i}{\ent}{
+		(0 \leq i <|ciudades|) \implicaLuego ciudades[i]_{habitantes} \geq 0}}
+
+\pred{noHayRepetidos}{ciudades : \TLista{Ciudad}}{\paraTodo[unalinea]{i}{\ent}{0 \leq i < |ciudades| \implica 
+	\paraTodo[unalinea]{j}{\ent}{0 \leq j < |ciudades| \implica (ciudades[i]_{nombre} != ciudades[j]_{nombre})}}}
+
+\pred{noEsReflexiva}{distancias : \matriz{\ent}}{\paraTodo[unalinea]{i}{\ent}{
+		(0 \leq i <|distancias|) \implicaLuego distancias[i][i] = 0}}
+
+\pred{esMatrizCuadrada}{distancias : \matriz{\ent}}{\paraTodo[unalinea]{i}{\ent}{
+(0 \leq i <|distancias|) \implicaLuego |distancias| = |distancias[i]|}}
+
+\pred{esSimetrica}{distancias : \matriz{\ent}}{\paraTodo[unalinea]{i}{\ent}{
+		(1 \leq i <|distancias|) \implicaLuego \paraTodo[unalinea]{j}{\ent}{(0 \leq j <i) \implicaLuego distancias[i][j] = distancias[j][i]}}}
+
+\pred{matrizValida}{distancias : \matriz{\ent}}{
+	esMatrizCuadrada(distancias) \yLuego noEsReflexiva(distancias) \land esSimetrica(distancias)}
+
+\pred{existeEnMatriz}{matriz : \matriz{\ent}, elemento : \ent}{
+	0\leq elemento<|matriz|}
+
+\pred{estan2a2}{camino : \TLista{\ent}, distancias : \matriz{\ent}}{\paraTodo[unalinea]{i}{\ent}{
+		(0 \leq i <|camino|-1) \implicaLuego distancias[camino[i]][camino[i+1]] \ne 0}}
+
+\pred{noHayElemPorFuera}{camino : \TLista{\ent},distancias : \matriz{\ent}}{
+	\paraTodo[unalinea]{i}{\ent}{(0\leq i\leq |camino|) \implicaLuego 0\leq camino[i]<|distancias|}}
+
+\pred{noHayMasElementos}{camino : \TLista{\ent},distancias : \matriz{\ent}}{
+	0 \leq |camino| \leq |distancias|}
+
+\pred{esCamino}{camino : \TLista{\ent}, origen : \ent, destino : \ent, distancias : \matriz{\ent}}{
+	noHayElemPorFuera(camino, distancias) \wedge \\
+	noHayMasElementos(camino, distancias) \wedge \\
+	estan2a2(camino, distancias) \wedge \\ 
+	(camino[0]=origen \wedge camino[|camino|-1]=destino)}
+
+\pred{noElemNeg}{distancias : \matriz{\ent}}{\paraTodo[unalinea]{i}{\ent}{
+		(0 \leq i <|distancias|) \implicaLuego \paraTodo[unalinea]{j}{\ent}{(0 \leq j < (|distancias|)) \implicaLuego distancias[i][j] > 0}}}
+
+\section{Demostraciones de correctitud}
+
+\subsection{Punto 1}
+
+% ejercicio 2.1
+
+Se nos pide demostrar que la implementacion es correcta. Luego, debemos demostrar, con los conceptos de precondicion mas debil y con los teoremas de Invariante y de Terminacion de Ciclo, que el ciclo finaliza, y que es correcta la implementacion.
+
+Comencemos demostrando la correctitud parcial del ciclo. Para ello, debemos probar que la tripla de Hoare $\{P_c\}S\{Q_c\}$ es valida. Proponemos, entonces, la precondicion $P_c$ y postcondicion $Q_c$ de ciclo.
+\newline \newline
+$P_c \equiv$
+\begin{adjustwidth}{2em}{}
+	$(\exists i : \ent)(0 \leq i < |ciudades| \yLuego ciudades[i]_{habitantes} > 50000) \wedge  \newline$
+	$(\forall i : \ent)(0 \leq i < |ciudades| \implicaLuego ciudades[i]_{habitantes} \geq 0 ) \wedge \newline$
+	$(\forall i : \ent)(\forall j : \ent) (0 \leq i < j < |ciudades| \implicaLuego ciudades[i]_{nombre} \neq ciudades[j]_{nombre}) \wedge \newline$
+	$res = 0 \wedge i = 0 $
+\end{adjustwidth}
+$Q_c \equiv res = \sum_{i=0}^{|ciudades|-1} ciudades[i]_{habitantes}$
+\newline \newline
+Ahora formalizemos la guarda del ciclo $B$ y el invariante $I$.
+\newline \newline
+$
+	B \equiv (i < |ciudades|) \newline
+	I \equiv (0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes})
+$
+\newline \newline
+Ahora comenzemos con la demostracion. Para ello, debemos demostrar que son validas las siguientes proposiciones:
+
+% demostracion teorema del invariante 
+
+\begin{enumerate} \setlength\itemsep{0cm}
+	\item $P_c \implies I$
+	\item $\{I \wedge B\}S\{I\}$
+	\item $(I \wedge \neg B)\implies Q_c$
+\end{enumerate}
+Comenzemos demostrando la primer proposicion. Primero, debemos notar que podemos elegir ignorar los cuantificadores de $P_c$, ya que las expresiones que comparten $P_c$ e $I$ son las que definen a $res$ e $i$.
+\newline \newline 
+% primer punto teorema del invariante
+$P_c \implies I$
+\begin{itemize}
+	\item $i=0 \implies 0 \leq i \leq |ciudades| \equiv 0 \leq 0 \leq |ciudades|$
+	\item $res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes} \equiv \sum_{j=0}^{0-1}ciudades[j]_{habitantes}=0$
+\end{itemize}
+Luego, es verdadera la proposicion. Sigamos con la segunda proposicion.
+\newline \newline 
+% segundo punto teorema del invariante
+$\{I \wedge B\}S\{I\} \iff \{I \wedge B\}\implies wp (S,I)$
+\begin{itemize}
+	\item $wp(S,I)$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv wp(res := res + ciudades[i]_{habitantes} , wp(i := i + 1 , 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes})) \newline$
+		      $\equiv wp(res := res+ciudades[i]_{habitantes},0 \leq i+1\leq |ciudades| \wedge res \sum_{j=0}^{i}ciudades[j]_{habitantes}) \newline$
+		      $\equiv 0 \leq i < i+1 \leq |ciudades| \wedge res + ciudades[i]_{habitantes} = \sum_{j=0}^{i}ciudades[j]_{habitantes} \newline$
+		      $\equiv 0 \leq i < i+1 \leq |ciudades| \wedge res = \sum_{j=0}^{i}ciudades[j]_{habitantes} - ciudades[i]_{habitantes}\newline$
+		      $\equiv 0 \leq i < i+1 \leq |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes}\newline$
+		      $\equiv 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes}\newline$
+		      $\equiv I$
+	      \end{adjustwidth}
+\end{itemize}
+Esclarezcamos un par de cosas.
+\begin{itemize}
+	\item La desigualdad $i<i+1$ proviene de que todo natural es menor estricto que su sucesor $S(i)$.
+	\item Al ser $ciudades[i]_{habitantes}$ el ultimo termino de la sumatoria $res =\sum_{j=0}^{i}ciudades[j]_{habitantes}$, restarselo es equivalente a reducir el indice por 1.
+\end{itemize}
+Procedamos con el ultimo punto del teorema del Invariante.
+\newline \newline
+% tercer punto teorema del invariante
+$(I \wedge \neg B) \implies Q_c$
+\begin{itemize}
+	\item $(I \wedge \neg B)$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1} ciudades[j]_{habitantes} \wedge i \geq |ciudades| \newline$
+		      $\equiv i = |ciudades| \wedge res = \sum_{j=0}^{i-1} ciudades[j]_{habitantes}$
+	      \end{adjustwidth}
+	      Como $i=|ciudades|$, reemplazo en la sumatoria $res$:
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv res = \sum_{j = 0}^{|ciudades|-1}ciudades[j]_{habitantes}$
+	      \end{adjustwidth}
+	      Como realmente el nombre que le demos al indice de la sumatoria es indiferente, podemos afirmar que  
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv Q_c$
+	      \end{adjustwidth}
+\end{itemize}
+
+Con lo cual queda demostrada la correctitud parcial del ciclo. Sigamos con la demostracion del teorema de Terminacion. Para ello, proponemos la funcion variante $f_v = \mathbb{V} \implica \mathbb{Z}$, $f_v = |ciudades| - i$. Resta demostrar ambos puntos del teorema:
+
+% demostracion teorema de terminacion
+% primer punto teorema de terminacion
+
+\begin{enumerate}
+	\item $\{I \wedge B \wedge f_v = v_0\} S \{fv , v_0\}$
+	\item $I \wedge f_v \leq 0 \implies \neg B$
+\end{enumerate}
+Sigamos con la demostracion de la primer proposicion. Definamos primero a $I \wedge B \wedge f_v = v_0$.
+\begin{itemize}
+	\item $I \wedge B \wedge f_v = v_0$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes} \wedge i < |ciudades| \wedge |ciudades| - i = v_0 \newline$
+		      $\equiv 0 \leq i < |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes} \wedge |ciudades|- i = v_0$
+	      \end{adjustwidth}
+	      Ahora veamos si la tripla de Hoare es valida. Para eso, verifiquemos el valor de verdad de la proposicion $I \wedge B \wedge f_v = v_0 \implies wp(S, f_v < v_0)$
+	\item $wp(S,f_v<v_0)$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv wp(res:=res+ciudades[i]_{habitantes},wp(i:=i+1,|ciudades|-i<v_0))\newline$
+		      $\equiv wp(res:=res+ciudades[i]_{habitantes},|ciudades|-i-1<v_0)$
+	      \end{adjustwidth}
+	      Podemos ignorar la asignacion de $res$ al no estar presente en $|ciudades|-i-1<v_0$. Por lo tanto,
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv |ciudades|-i-1 < v_0$
+	      \end{adjustwidth}
+	      Entonces, queremos ver que
+	      \begin{adjustwidth}{2em}{}
+		      $0 \leq i < |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes} \wedge |ciudades| - i = v_0 \implies |ciudades|-i-1 < v_0$
+	      \end{adjustwidth}
+	      Lo cual es verdadero, pues la proposicion
+	      \begin{adjustwidth}{2em}{}
+		      $|ciudades|-i=v_0 \implies |ciudades| - i-1<v_0$
+	      \end{adjustwidth}
+	      lo es.
+\end{itemize}
+Sigamos con el ultimo punto del teorema de Terminacion.
+
+% segundo punto teorema de terminacion
+
+\begin{itemize}
+	\item $I \wedge f_v \leq 0$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1} ciudades[j]_{habitantes} \wedge |ciudades| - i \leq 0 \newline$
+		      $\equiv 0 \leq i \leq |ciudades| \wedge res = \sum_{j=0}^{i-1} ciudades[j]_{habitantes} \wedge |ciudades| \leq i \newline$
+		      $\equiv i = |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes}$
+	      \end{adjustwidth}
+	      Entonces, veamos si la proposicion $I \wedge f_v \leq 0 \implies \neg B$ es verdadera.\newline
+	\item $I \wedge f_v \leq 0 \implies \neg B$
+	      \begin{adjustwidth}{2em}{}
+		      $\equiv i = |ciudades| \wedge res = \sum_{j=0}^{i-1}ciudades[j]_{habitantes} \implies i \geq |ciudades|$
+	      \end{adjustwidth}
+	      Entonces, si tomamos unicamente las comparaciones de $i$ con $|ciudades|$
+	      \begin{adjustwidth}{2em}{}
+		      $ \equiv i = |ciudades| \implies i \geq |ciudades|$
+	      \end{adjustwidth}
+	      Lo cual es verdadero. 
+\end{itemize}
+Entonces, queda demostrado que el ciclo inicia y finaliza correctamente.\\\\
+Ahora veamos el primer bloque de codigo restante:
+\begin{lstlisting}
+	res := 0;
+	i := 0;
+\end{lstlisting}
+A este bloque de codigo lo llamaremos $S_1$. Ahora, queremos probar que $P \implies wp(S_1, P_c)$. En particular:
+\\ $wp(S_1,P_c)$
+\begin{adjustwidth}{2em}{}
+	$\equiv wp(res := 0; i :=0 , P_c)$\\
+	$\equiv wp(res := 0, wp(i := 0, P_c))$\\
+	$\equiv wp(res := 0; {P_c}_0^i )$\\
+	$\equiv {P_c}_{0|0}^{i|res}$\\
+	$\equiv P_c$
+\end{adjustwidth}
+Que es verdadero, pues $P \implies P_c$.
+Luego, la implementacion es correcta.
+
+\subsection{Punto 2}
+
+% ejercicio 2.2
+
+
+Planteamos las siguientes formulas:
+\begin{gather*}
+	\psi = (\exists i : \ent)(0 \leq i < |ciudades| \yLuego ciudades[i]_{habitantes} > 50000)
+\end{gather*}
+\begin{gather*}
+	\phi = (\forall i : \ent)(0 \leq i < |ciudades| \implicaLuego ciudades[i]_{habitantes} \geq 0 ) 
+\end{gather*} 
+
+Por otro lado, viendo la especificacion del procedimiento, notamos que el parametro $ciudades$ es de entrada(in).
+Aunque sería posible agregar las formulas $\psi$ y $\phi $ tanto en la precondicion del ciclo $P_c$ como en el invariante $I$, y demostrar formalmente que estas precondiciones siguen siendo válidas al terminar el programa, no es necesario porque el programa no modifica este parámetro ni ninguno de sus elementos. Por lo tanto, al finalizar el programa va a seguir existiendo un k con $ 0 \leq k < |ciudades|$ y que $ciudades[k]_{habitantes}> 50000$.\\
+
+Además, sabemos que el número de habitantes de cada ciudad es positivo pues $ciudades[j]_{habitantes} \geq 0$ para todo $j$, $ 0\leq j < |ciudades|$, y dado que $res$ es la suma de todos ellos, podemos concluir que $res > 50000$.
+
+\end{document}
